@@ -2515,13 +2515,13 @@
       const agents = getAgents().filter(a => a.nom.toLowerCase().includes(q));
       const w = document.getElementById('agents-table-wrap');
       if (!agents.length) { w.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Aucun agent enregistré.</p>'; return; }
-      w.innerHTML = `<table class="admin-table"><thead><tr><th>Nom</th><th>Grade</th><th>Sorties</th><th>Rapports</th><th>Dernier QCM</th><th>Actions</th></tr></thead><tbody>${agents.map(a => {
+      w.innerHTML = `<table class="admin-table"><thead><tr><th>Nom</th><th>Grade</th><th>Sorties</th><th>Dernier QCM</th><th>Actions</th></tr></thead><tbody>${agents.map(a => {
         const sorties = (a.sorties || []).filter(s => s.checked).length;
         const rapports = (a.rapports || []).length;
         const res = getResults().filter(r => r.nom === a.nom);
         const last = res.length ? res[res.length - 1] : null;
         const gk = gradeKey(a.grade);
-        return `<tr><td>${a.nom}</td><td><span class="badge grade-${gk}">${a.grade}</span></td><td>${sorties ? `<span class="badge badge-green">${sorties}</span>` : '<span style="color:var(--muted)">—</span>'}</td><td>${rapports ? `<span class="badge badge-blue" style="cursor:pointer" onclick="viewAgentRapports('${a.nom}')">${rapports}</span>` : '<span style="color:var(--muted)">—</span>'}</td><td>${last ? `<span class="badge ${last.score >= last.total * .7 ? 'badge-green' : 'badge-red'}">${last.score}/${last.total}</span>` : '<span style="color:var(--muted)">—</span>'}</td><td><button class="btn btn-outline" style="padding:.3rem .7rem;font-size:.7rem" onclick="openEditAgent('${a.nom}')">Modifier</button> <button class="btn btn-danger" style="padding:.3rem .7rem;font-size:.7rem" onclick="deleteAgent('${a.nom}')">Suppr.</button></td></tr>`;
+        return `<tr><td>${a.nom}</td><td><span class="badge grade-${gk}">${a.grade}</span></td><td>${sorties ? `<span class="badge badge-green">${sorties}</span>` : '<span style="color:var(--muted)">—</span>'}</td><td>${last ? `<span class="badge ${last.score >= last.total * .7 ? 'badge-green' : 'badge-red'}">${last.score}/${last.total}</span>` : '<span style="color:var(--muted)">—</span>'}</td><td style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn btn-outline" style="padding:.3rem .7rem;font-size:.7rem" onclick="viewAgentRapports('${a.nom}')">📄 Rapports${rapports ? ' (' + rapports + ')' : ''}</button> <button class="btn btn-outline" style="padding:.3rem .7rem;font-size:.7rem" onclick="openEditAgent('${a.nom}')">Modifier</button> <button class="btn btn-danger" style="padding:.3rem .7rem;font-size:.7rem" onclick="deleteAgent('${a.nom}')">Suppr.</button></td></tr>`;
       }).join('')}</tbody></table>`;
     }
     function renderSortiesAdmin() {
