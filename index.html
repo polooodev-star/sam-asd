@@ -2124,6 +2124,7 @@
           <button class="tab active" onclick="adminTab('tab-agents')">👥 Agents</button>
           <button class="tab" onclick="adminTab('tab-sorties')">🚁 Sorties</button>
           <button class="tab" onclick="adminTab('tab-qcm-results')">📋 Résultats QCM</button>
+          <button class="tab" onclick="adminTab('tab-rapports-admin')">📄 Rapports</button>
           <button class="tab" onclick="adminTab('tab-qcm-editor')">✏️ Éditeur QCM</button>
           <button class="tab" onclick="adminTab('tab-settings')">🔧 Paramètres</button>
         </div>
@@ -2144,6 +2145,13 @@
           <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Résultats des questionnaires soumis par
             les candidats.</p>
           <div id="qcm-results-wrap"></div>
+        </div>
+        <div class="tab-content" id="tab-rapports-admin">
+          <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Tous les rapports soumis par les agents.
+          </p>
+          <div style="margin-bottom:1rem"><input class="search-input" id="rapport-admin-search"
+              placeholder="Rechercher par agent ou titre..." oninput="renderRapportsAdmin()" /></div>
+          <div id="rapports-admin-wrap"></div>
         </div>
         <div class="tab-content" id="tab-qcm-editor">
           <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Modifiez les questions et réponses du QCM.
@@ -2377,6 +2385,7 @@
           if (id === 'tab-agents') renderAgentsTable();
           if (id === 'tab-sorties') renderSortiesAdmin();
           if (id === 'tab-qcm-results') renderQcmResults();
+          if (id === 'tab-rapports-admin') renderRapportsAdmin();
           if (id === 'tab-qcm-editor') renderQcmEditor();
         }
       }
@@ -2458,6 +2467,7 @@
       if (id === 'tab-agents') renderAgentsTable();
       if (id === 'tab-sorties') renderSortiesAdmin();
       if (id === 'tab-qcm-results') renderQcmResults();
+      if (id === 'tab-rapports-admin') renderRapportsAdmin();
       if (id === 'tab-qcm-editor') renderQcmEditor();
     }
 
@@ -2525,6 +2535,27 @@
       const w = document.getElementById('qcm-results-wrap');
       if (!res.length) { w.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Aucun résultat soumis.</p>'; return; }
       w.innerHTML = `<table class="admin-table"><thead><tr><th>Candidat</th><th>Score</th><th>Date</th></tr></thead><tbody>${res.map(r => `<tr><td>${r.nom}</td><td><span class="badge ${r.score >= r.total * .7 ? 'badge-green' : 'badge-red'}">${r.score}/${r.total}</span></td><td style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted)">${r.date}</td></tr>`).join('')}</tbody></table>`;
+    }
+    function renderRapportsAdmin() {
+      const q = (document.getElementById('rapport-admin-search') || { value: '' }).value.toLowerCase();
+      const all = [];
+      getAgents().forEach(a => (a.rapports || []).forEach(r => {
+        all.push({ ...r, agent: a.nom, grade: a.grade });
+      }));
+      all.sort((a, b) => new Date(b.date) - new Date(a.date));
+      const filtered = all.filter(r => r.agent.toLowerCase().includes(q) || r.titre.toLowerCase().includes(q));
+      const w = document.getElementById('rapports-admin-wrap');
+      if (!filtered.length) { w.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Aucun rapport soumis.</p>'; return; }
+      w.innerHTML = filtered.map(r => {
+        const gk = gradeKey(r.grade);
+        return `<div class="report-entry" style="margin-bottom:1rem">
+          <div class="report-meta" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+            <span>📄 ${r.titre} — ${r.date}</span>
+            <span class="badge grade-${gk}" style="font-size:.6rem">${r.agent} · ${r.grade}</span>
+          </div>
+          <div style="font-size:.84rem;color:var(--muted);line-height:1.7;margin-top:.6rem">${r.contenu.replace(/\n/g, '<br>')}</div>
+        </div>`;
+      }).join('');
     }
 
     // ===== CREATE/EDIT/DELETE AGENT =====
