@@ -2343,11 +2343,56 @@
         if (dot) { dot.style.background = '#3A8A3A'; dot.style.boxShadow = '0 0 6px #3A8A3A'; }
         if (label) label.textContent = 'CLOUD ACTIF';
         toast('☁️ Données cloud synchronisées', 'ok');
+
+        // ----- REALTIME SYNC -----
+        sb.channel('kv_store_changes')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'kv_store' }, payload => {
+            if (payload.eventType === 'DELETE') {
+              delete _mem[payload.old.key];
+              localStorage.removeItem('asd_' + payload.old.key);
+            } else {
+              _mem[payload.new.key] = payload.new.value;
+              localStorage.setItem('asd_' + payload.new.key, JSON.stringify(payload.new.value));
+              if (currentAgent && payload.new.key === 'agents') {
+                currentAgent = payload.new.value.find(a => a.nom === currentAgent.nom) || currentAgent;
+              }
+            }
+            refreshActiveUI();
+          })
+          .subscribe();
+
       } catch (e) {
         console.warn('Cloud sync failed:', e);
         if (dot) { dot.style.background = '#A83228'; dot.style.boxShadow = '0 0 6px #A83228'; }
         if (label) label.textContent = 'MODE LOCAL';
         toast('⚠️ Mode hors-ligne (localStorage)', 'err');
+      }
+    }
+
+    function refreshActiveUI() {
+      if (document.getElementById('modal-admin').classList.contains('open')) {
+        const activeTabs = document.querySelectorAll('#modal-admin .tab-content.active');
+        if (activeTabs.length) {
+          const id = activeTabs[0].id;
+          if (id === 'tab-agents') renderAgentsTable();
+          if (id === 'tab-sorties') renderSortiesAdmin();
+          if (id === 'tab-qcm-results') renderQcmResults();
+          if (id === 'tab-qcm-editor') renderQcmEditor();
+        }
+      }
+      if (document.getElementById('modal-perso').classList.contains('open') && currentAgent) {
+        const activeTabs = document.querySelectorAll('#modal-perso .tab-content.active');
+        if (activeTabs.length) {
+          const id = activeTabs[0].id;
+          if (id === 'tab-p-profil') {
+            const gk = gradeKey(currentAgent.grade);
+            document.getElementById('perso-header-display').innerHTML = `<div><div class="perso-name">${currentAgent.nom}</div><div class="perso-grade-badge grade-${gk}">${currentAgent.grade}</div></div>`;
+            renderSortieBlock();
+          }
+          if (id === 'tab-p-journal') renderJournal();
+          if (id === 'tab-p-rapports') renderRapports();
+          if (id === 'tab-p-sorties') renderPersoSorties();
+        }
       }
     }
     function getAgents() { return DB.get('agents', []) }
