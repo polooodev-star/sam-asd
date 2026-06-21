@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -3250,7 +3250,8 @@
             onclick="closeModal('modal-admin-auth')">✕</button>
         </div>
         <div class="modal-body">
-          <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Accès réservé au Lead ASD. Entrez le code
+          <p id="admin-auth-desc" style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Accès réservé au Lead
+            ASD. Entrez le code
             d'accès.</p>
           <div class="form-group"><label>Code d'accès Admin</label><input type="password" id="admin-pwd"
               placeholder="••••••••" onkeydown="if(event.key==='Enter')verifyAdmin()" /></div>
@@ -3269,7 +3270,7 @@
         <div class="modal-body">
           <div class="tabs">
             <button class="tab active" onclick="adminTab('tab-agents')">👥 Agents</button>
-            <button class="tab" onclick="adminTab('tab-sorties')">🚁 Sorties</button>
+            <button id="tab-admin-sorties" class="tab" onclick="adminTab('tab-sorties')">🚁 Sorties</button>
             <button class="tab" onclick="adminTab('tab-qcm-results')">📋 Résultats QCM</button>
             <button class="tab" onclick="adminTab('tab-qcm-editor')">✏️ Éditeur QCM</button>
             <button class="tab" onclick="adminTab('tab-settings')">🔧 Paramètres</button>
@@ -3394,7 +3395,7 @@
             <button class="tab active" onclick="persoTab('tab-p-profil')">🆔 Profil</button>
             <button class="tab" onclick="persoTab('tab-p-journal')">📓 Journal</button>
             <button class="tab" onclick="persoTab('tab-p-rapports')">📄 Rapports</button>
-            <button class="tab" onclick="persoTab('tab-p-sorties')">🚁 Mes Sorties</button>
+            <button id="tab-perso-sorties" class="tab" onclick="persoTab('tab-p-sorties')">🚁 Mes Sorties</button>
           </div>
           <div class="tab-content active" id="tab-p-profil">
             <div id="perso-header-display" style="margin-bottom:1.5rem"></div>
@@ -3404,7 +3405,7 @@
                 <div id="perso-info-block"></div>
               </div>
               <div class="perso-card">
-                <div class="perso-card-title">🚁 Sortie de Service</div>
+                <div id="title-perso-sortie" class="perso-card-title">🚁 Sortie de Service</div>
                 <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem">Cochez pour enregistrer votre sortie.
                   Date et heure horodatées automatiquement.</p>
                 <div id="perso-sortie-block"></div>
@@ -3441,7 +3442,8 @@
           <h3>📋 Identification</h3><button class="modal-close" onclick="closeModal('modal-quiz-id')">✕</button>
         </div>
         <div class="modal-body">
-          <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Entrez votre nom avant de commencer. Vos
+          <p id="quiz-id-desc" style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Entrez votre nom avant
+            de commencer. Vos
             résultats seront transmis au Lead ASD.</p>
           <div class="form-group"><label>Votre Nom Prénom</label><input type="text" id="quiz-nom-input"
               placeholder="ex: SONY DUPONT" /></div>
@@ -3523,6 +3525,25 @@
 
       const adminTitle = document.getElementById('admin-panel-title');
       if (adminTitle) adminTitle.textContent = `⚙ Panel Administrateur — ${div.toUpperCase()}`;
+
+      const adminAuthDesc = document.getElementById('admin-auth-desc');
+      if (adminAuthDesc) adminAuthDesc.textContent = `Accès réservé au Lead ${div.toUpperCase()}. Entrez le code d'accès.`;
+
+      const quizIdDesc = document.getElementById('quiz-id-desc');
+      if (quizIdDesc) quizIdDesc.textContent = `Entrez votre nom avant de commencer. Vos résultats seront transmis au Lead ${div.toUpperCase()}.`;
+
+      let emoji = '🚁';
+      if (div === 'hp') emoji = '🚗';
+      if (div === 'mary') emoji = '🏍️';
+
+      const tabAdminSorties = document.getElementById('tab-admin-sorties');
+      if (tabAdminSorties) tabAdminSorties.textContent = `${emoji} Sorties`;
+
+      const tabPersoSorties = document.getElementById('tab-perso-sorties');
+      if (tabPersoSorties) tabPersoSorties.textContent = `${emoji} Mes Sorties`;
+
+      const titlePersoSortie = document.getElementById('title-perso-sortie');
+      if (titlePersoSortie) titlePersoSortie.textContent = `${emoji} Sortie de Service`;
 
       refreshActiveUI();
     }
